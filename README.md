@@ -16,7 +16,7 @@ A real-time auction bidding application where users can join with a username, pl
 - **Frontend**: React.js
 - **Backend**: Node.js,  Socket.io
 - **Containerization**: Docker
-
+- **Deployment**: Render
 
 ## Installation & Local Development
 
@@ -25,7 +25,6 @@ A real-time auction bidding application where users can join with a username, pl
 git clone <repository-url>
 cd liveauctionapp
 ```
-
 ### 2. Setup the Server
 Navigate to the server directory and install dependencies:
 ```bash
@@ -62,7 +61,7 @@ You can run the entire application (client + server) using Docker.
     docker run -p 3000:3000 -p 3001:3001 auction-app
     ```
 
-The app will be accessible at `http://localhost:3000`, and the API/WebSocket server at `http://localhost:3001`.
+3. Access the App: Open `http://localhost:3001` in your browser. (Note: The frontend is served directly by the backend on this port).
 
 ## Usage
 
