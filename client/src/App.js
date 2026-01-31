@@ -42,12 +42,12 @@ const AuctionTimer = ({ endTime }) => {
 
 const AuctionCard = ({ item, userId, onPlaceBid }) => {
   const [flashClass, setFlashClass] = useState('');
+  const [hasBeenOutbid, setHasBeenOutbid] = useState(false);
   const prevBidRef = useRef(item.currentBid);
   const prevWinningRef = useRef(item.highestBidder === userId);
 
   const isWinning = item.highestBidder === userId;
   const isClosed = Date.now() > item.endTime;
-  const isOutbid = !isWinning && prevWinningRef.current;
 
   useEffect(() => {
     if (item.currentBid > prevBidRef.current) {
@@ -58,7 +58,10 @@ const AuctionCard = ({ item, userId, onPlaceBid }) => {
   }, [item.currentBid]);
 
   useEffect(() => {
-    if (prevWinningRef.current && !isWinning) {
+    if (isWinning) {
+      setHasBeenOutbid(false);
+    } else if (prevWinningRef.current && !isWinning) {
+      setHasBeenOutbid(true);
       setFlashClass('animate-shake-red');
       const timeout = setTimeout(() => setFlashClass(''), 500);
       return () => clearTimeout(timeout);
@@ -71,13 +74,13 @@ const AuctionCard = ({ item, userId, onPlaceBid }) => {
   }, [item.currentBid, isWinning]);
 
   return (
-    <div className={`auction-card ${flashClass} ${isWinning ? 'winning-card' : ''}`}>
+    <div className={`auction-card ${flashClass} ${isWinning ? 'winning-card' : ''} ${hasBeenOutbid ? 'outbid-card' : ''}`}>
       <h3 className="item-title">{item.title}</h3>
       <AuctionTimer endTime={item.endTime} />
       <div className="price-tag">${item.currentBid}</div>
       <div className="status-area">
         {isWinning && <span className="winning-badge"> Winning</span>}
-        {isOutbid && <span className="outbid-badge"> Outbid!</span>}
+        {hasBeenOutbid && <span className="outbid-badge"> Outbid!</span>}
       </div>
       <button
         onClick={() => onPlaceBid(item.id, item.currentBid)}
