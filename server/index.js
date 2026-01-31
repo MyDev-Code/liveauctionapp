@@ -15,17 +15,37 @@ const io = new Server(server, {
 const buildPath = path.join(__dirname, '../client/build');
 app.use(express.static(buildPath));
 
+const fs = require('fs');
 
+const DATA_FILE = path.join(__dirname, 'auction_data.json');
 
-const AUCTION_END_TIME = Date.now() + 12 * 60 * 60 * 1000;
+const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
 const INITIAL_AUCTIONS = [
   { id: 1, title: "Vintage Watch", currentBid: 100, highestBidder: null, endTime: AUCTION_END_TIME },
   { id: 2, title: "Retro Camera", currentBid: 250, highestBidder: null, endTime: AUCTION_END_TIME }
 ];
 
-let auctions = JSON.parse(JSON.stringify(INITIAL_AUCTIONS));
+let auctions = [];
 
+try {
+  if (fs.existsSync(DATA_FILE)) {
+    auctions = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  } else {
+    auctions = INITIAL_AUCTIONS;
+    fs.writeFileSync(DATA_FILE, JSON.stringify(auctions));
+  }
+} catch (err) {
+  console.error("Error loading data:", err);
+  auctions = INITIAL_AUCTIONS;
+}
 
+const saveAuctions = () => {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(auctions, null, 2));
+  } catch (err) {
+    console.error("Error saving data:", err);
+  }
+};
 
 app.get('/items', (req, res) => res.status(200).json(auctions));
 
@@ -36,7 +56,7 @@ io.on('connection', (socket) => {
     item.currentBid = bid.bidAmount;
     item.highestBidder = bid.userId;
     console.log(`Bid placed: User "${bid.userId}" bid $${bid.bidAmount} on "${item.title}"`);
-
+    saveAuctions();
     io.emit('UPDATE_BID', { itemId: item.id, newBid: item.currentBid, highestBidder: item.highestBidder });
   });
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
