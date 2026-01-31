@@ -8,46 +8,32 @@ import './App.css';
 const SERVER_URL = window.location.origin;
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
-const AuctionTimer = ({ endTime }) => {
-  const [serverOffset, setServerOffset] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
+const AuctionTimer = ({ endTime, serverTime }) => {
+  if (!serverTime) return <div className="timer">Loading...</div>;
 
-  useEffect(() => {
-    socket.emit('SYNC_TIME', (serverTime) => {
-      setServerOffset(serverTime - Date.now());
-    });
-  }, []);
+  const remaining = Math.max(0, endTime - serverTime);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const actualServerTime = Date.now() + serverOffset;
-      const remaining = Math.max(0, endTime - actualServerTime);
-      setTimeLeft(remaining);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [endTime, serverOffset]);
-
-  const hours = Math.floor(timeLeft / 3600000);
-  const minutes = Math.floor((timeLeft % 3600000) / 60000);
-  const seconds = Math.floor((timeLeft % 60000) / 1000);
+  const hours = Math.floor(remaining / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
 
   return (
-    <div className={`timer ${timeLeft < 60000 && timeLeft > 0 ? 'timer-danger' : ''}`}>
-      {timeLeft > 0 ?
+    <div className={`timer ${remaining < 60000 && remaining > 0 ? 'timer-danger' : ''}`}>
+      {remaining > 0 ?
         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
         : "CLOSED"}
     </div>
   );
 };
 
-const AuctionCard = ({ item, userId, onPlaceBid }) => {
+const AuctionCard = ({ item, userId, onPlaceBid, serverTime }) => {
   const [flashClass, setFlashClass] = useState('');
   const [hasBeenOutbid, setHasBeenOutbid] = useState(false);
   const prevBidRef = useRef(item.currentBid);
   const prevWinningRef = useRef(item.highestBidder === userId);
 
   const isWinning = item.highestBidder === userId;
-  const isClosed = Date.now() > item.endTime;
+  const isClosed = serverTime ? (serverTime > item.endTime) : false;
 
   useEffect(() => {
     if (item.currentBid > prevBidRef.current) {
@@ -76,7 +62,7 @@ const AuctionCard = ({ item, userId, onPlaceBid }) => {
   return (
     <div className={`auction-card ${flashClass} ${isWinning ? 'winning-card' : ''} ${hasBeenOutbid ? 'outbid-card' : ''}`}>
       <h3 className="item-title">{item.title}</h3>
-      <AuctionTimer endTime={item.endTime} />
+      <AuctionTimer endTime={item.endTime} serverTime={serverTime} />
       <div className="price-tag">${item.currentBid}</div>
       <div className="status-area">
         {isWinning && <span className="winning-badge"> Winning</span>}
@@ -99,6 +85,40 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auction_user'));
   const [usernameInput, setUsernameInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [serverTime, setServerTime] = useState(null); // Null until synced
+  const [serverOffset, setServerOffset] = useState(0);
+
+  // Time Sync Effect
+  useEffect(() => {
+    const fetchTime = () => {
+      const start = Date.now();
+      socket.emit('SYNC_TIME', (serverTimestamp) => {
+        const end = Date.now();
+        const latency = (end - start) / 2;
+        const offset = serverTimestamp - end + latency; // Adjust for round trip
+        setServerOffset(offset);
+      });
+    };
+
+    fetchTime();
+    // Re-sync occasionally if needed, but once is usually enough for short sessions.
+    // We could add an interval here to re-check drift.
+  }, []);
+
+  // Global Ticker
+  useEffect(() => {
+    const tick = () => {
+      setServerTime(Date.now() + serverOffset);
+    };
+
+    // Update immediately
+    tick();
+
+    // High frequency update for smoothness, though seconds is fine.
+    // Using 100ms ensures we catch the "second" change close to reality.
+    const interval = setInterval(tick, 100);
+    return () => clearInterval(interval);
+  }, [serverOffset]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -176,7 +196,7 @@ export default function App() {
 
       <section className="auction-grid">
         {items.map((item) => (
-          <AuctionCard key={item.id} item={item} userId={userId} onPlaceBid={handlePlaceBid} />
+          <AuctionCard key={item.id} item={item} userId={userId} onPlaceBid={handlePlaceBid} serverTime={serverTime} />
         ))}
       </section>
     </main>
