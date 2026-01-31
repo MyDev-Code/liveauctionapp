@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -9,12 +7,17 @@ const path = require('path');
 const app = express();
 app.use(cors());
 
+// 1. Initialize Server and Socket.io
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
+// 2. Define the path to your React files (one level up from /server)
+const buildPath = path.join(__dirname, '..', 'client', 'build');
+app.use(express.static(buildPath));
 
+// 3. Auction Data
 const AUCTION_END_TIME = Date.now() + 10 * 60 * 1000;
 
 let auctions = [
@@ -34,31 +37,20 @@ let auctions = [
   }
 ];
 
-
-
+// 4. API Routes
 app.get('/items', (req, res) => {
   res.status(200).json(auctions);
 });
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-}
-
+// 5. Socket.io Logic
 io.on('connection', (socket) => {
   console.log(`New Connection: ${socket.id}`);
 
   socket.on('BID_PLACED', (incomingBid) => {
     const { itemId, bidAmount, userId } = incomingBid;
-
     const item = auctions.find(a => a.id === itemId);
 
-    if (!item) {
-      return socket.emit('ERROR', 'Item not found');
-    }
+    if (!item) return socket.emit('ERROR', 'Item not found');
 
     const now = Date.now();
     const isAuctionOver = now > item.endTime;
@@ -78,8 +70,6 @@ io.on('connection', (socket) => {
     item.currentBid = bidAmount;
     item.highestBidder = userId;
 
-    console.log(`Success: ${userId} bid $${bidAmount} on ${item.title}`);
-
     io.emit('UPDATE_BID', {
       itemId: item.id,
       newBid: item.currentBid,
@@ -96,11 +86,17 @@ io.on('connection', (socket) => {
   });
 });
 
+// 6. THE CATCH-ALL ROUTE (MUST BE LAST)
+// This serves the React app for any route that isn't /items
+app.get('*', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
+
+// 7. Start Server
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`
      Auction Server is live!
      Port: ${PORT}
-     URL: http://localhost:${PORT}
   `);
 });
