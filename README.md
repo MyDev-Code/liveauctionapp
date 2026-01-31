@@ -13,8 +13,8 @@ A real-time auction bidding application where users can join with a username, pl
 
 ## Tech Stack
 
-- **Frontend**: React.js, Vanilla CSS
-- **Backend**: Node.js, Express, Socket.io
+- **Frontend**: React.js, 
+- **Backend**: Node.js,  Socket.io
 - **Containerization**: Docker
 
 
