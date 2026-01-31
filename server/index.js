@@ -12,11 +12,10 @@ const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-// Use a simpler relative path that works inside the Docker structure
 const buildPath = path.join(__dirname, '../client/build');
 app.use(express.static(buildPath));
 
-const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
+const AUCTION_END_TIME = Date.now() + 12 * 60 * 60 * 1000;
 let auctions = [
   { id: 1, title: "Vintage Watch", currentBid: 100, highestBidder: null, endTime: AUCTION_END_TIME },
   { id: 2, title: "Retro Camera", currentBid: 250, highestBidder: null, endTime: AUCTION_END_TIME }
@@ -35,12 +34,12 @@ io.on('connection', (socket) => {
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
 });
 
-// The Catch-All with the simplified *path
+
 app.get('*path', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// BIND TO 0.0.0.0 (REQUIRED BY RENDER)
+
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server live on port ${PORT}`);
