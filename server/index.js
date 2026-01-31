@@ -13,8 +13,8 @@ const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-// 2. Define the path to your React files (one level up from /server)
-const buildPath = path.join(__dirname, '..', 'client', 'build');
+// 2. Define the path (Using path.resolve for maximum reliability in Docker)
+const buildPath = path.resolve(__dirname, '..', 'client', 'build');
 app.use(express.static(buildPath));
 
 // 3. Auction Data
@@ -87,15 +87,23 @@ io.on('connection', (socket) => {
 });
 
 // 6. THE CATCH-ALL ROUTE (MUST BE LAST)
-// This serves the React app for any route that isn't /items
-app.get('*', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'));
+app.get('*path', (req, res) => {
+  res.sendFile(path.join(buildPath, 'index.html'), (err) => {
+    if (err) {
+      // This will show in Render logs if the path is still wrong
+      console.error("Error sending index.html. Path tried:", path.join(buildPath, 'index.html'));
+      res.status(500).send("Frontend files not found. Check build path.");
+    }
+  });
 });
 
 // 7. Start Server
 const PORT = process.env.PORT || 3001;
 
-// Change THIS line:
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Auction Server is live on port ${PORT}`);
+  console.log(`
+    Auction Server is live!
+    Port: ${PORT}
+    Directory: ${__dirname}
+  `);
 });
