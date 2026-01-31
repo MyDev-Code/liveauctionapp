@@ -13,13 +13,14 @@ const AuctionTimer = ({ endTime, serverTime }) => {
 
   const remaining = Math.max(0, endTime - serverTime);
 
-  const minutes = Math.floor(remaining / 60000);
+  const hours = Math.floor(remaining / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
 
   return (
     <div className={`timer ${remaining < 60000 && remaining > 0 ? 'timer-danger' : ''}`}>
       {remaining > 0 ?
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
         : "CLOSED"}
     </div>
   );
