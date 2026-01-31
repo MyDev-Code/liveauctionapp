@@ -94,9 +94,8 @@ app.get('*', (req, res) => {
 
 // 7. Start Server
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`
-     Auction Server is live!
-     Port: ${PORT}
-  `);
+
+// Change THIS line:
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Auction Server is live on port ${PORT}`);
 });

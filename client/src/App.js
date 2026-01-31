@@ -4,7 +4,8 @@ import io from 'socket.io-client';
 import './App.css';
 
 
-const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:3001' : window.location.origin;
+
+const SERVER_URL = window.location.origin;
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
 const AuctionTimer = ({ endTime }) => {
