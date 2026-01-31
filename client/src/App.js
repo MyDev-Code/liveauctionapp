@@ -80,7 +80,7 @@ const AuctionCard = ({ item, userId, onPlaceBid }) => {
       <div className="price-tag">${item.currentBid}</div>
       <div className="status-area">
         {isWinning && <span className="winning-badge"> Winning</span>}
-        {hasBeenOutbid && <span className="outbid-badge"> Outbid!</span>}
+        {hasBeenOutbid && <span className="outbid-badge"> Outbid</span>}
       </div>
       <button
         onClick={() => onPlaceBid(item.id, item.currentBid)}
