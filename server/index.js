@@ -19,7 +19,7 @@ const fs = require('fs');
 
 const DATA_FILE = path.join(__dirname, 'auction_data.json');
 
-const AUCTION_END_TIME = Date.now() + 12 * 60 * 60 * 1000;
+const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
 const INITIAL_AUCTIONS = [
   { id: 1, title: "Vintage Watch", currentBid: 100, highestBidder: null, endTime: AUCTION_END_TIME },
   { id: 2, title: "Retro Camera", currentBid: 250, highestBidder: null, endTime: AUCTION_END_TIME }
