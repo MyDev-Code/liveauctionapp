@@ -1,0 +1,263 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+
+  color: white;
+  min-height: 100vh;
+}
+
+.main-container {
+  padding: 40px 20px;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.auction-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.item-title {
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  font-size: 1.4rem;
+}
+
+.price-tag {
+  color: #2c3e50;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 15px 0;
+  font-family: 'Roboto Mono', monospace;
+}
+
+
+.auction-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  color: #2c3e50;
+}
+
+
+.auction-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.winning-card {
+  border: 4px solid #28a745;
+  background-color: #fafffb;
+}
+
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.bid-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 50px;
+  background-color: #007bff;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s;
+}
+
+.bid-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  filter: brightness(1.1);
+}
+
+.bid-button:disabled {
+  background-color: #bdc3c7 !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-winning {
+  background-color: #28a745 !important;
+}
+
+
+.status-area {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.badge,
+.winning-badge,
+.outbid-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  color: white;
+}
+
+.winning-badge {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.outbid-badge {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+
+.timer {
+  background-color: #f1f3f5;
+  color: #555;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.timer-danger {
+  background-color: #fadbd8;
+  color: #dc3545;
+  animation: pulse-red 1s infinite;
+}
+
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  color: #1e3c72;
+}
+
+.login-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.login-button {
+  width: 100%;
+  padding: 15px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+@keyframes flash-green {
+  0% {
+    transform: scale(1.02);
+    background-color: rgba(40, 255, 87, 0.6);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+@keyframes shake-red {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+    border-color: #dc3545;
+  }
+
+  75% {
+    transform: translateX(5px);
+    border-color: #dc3545;
+  }
+}
+
+@keyframes pulse-red {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
+}
+
+.animate-flash-green {
+  animation: flash-green 0.8s ease-out;
+}
+
+.animate-shake-red {
+  animation: shake-red 0.5s ease-in-out;
+  border: 2px solid #dc3545 !important;
+}
