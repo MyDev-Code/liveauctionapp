@@ -1,26 +1,19 @@
-# Author: Christin
-# Description: Docker configuration to containerize the Live Auction App.
-
 FROM node:22-slim
 WORKDIR /app
 
-# 1. Server Setup
-FROM node:22-slim
-WORKDIR /app
-
-# 1. Install dependencies first (for faster builds)
+# Copy package files and install
 COPY server/package*.json ./server/
 RUN cd server && npm install
 COPY client/package*.json ./client/
 RUN cd client && npm install
 
-# 2. Build React
+# Build frontend
 COPY client/ ./client/
 RUN cd client && npm run build
 
-# 3. Copy Server Code
+# Copy backend
 COPY server/ ./server/
 
-# 4. Final Start (Must be from the root /app to match our paths)
-EXPOSE 10000
-CMD ["node", "server/index.js"]
+# RUN FROM THE SERVER FOLDER
+WORKDIR /app/server
+CMD ["node", "index.js"]

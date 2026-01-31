@@ -7,103 +7,41 @@ const path = require('path');
 const app = express();
 app.use(cors());
 
-// 1. Initialize Server and Socket.io
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-// 2. Define the path (Using path.resolve for maximum reliability in Docker)
-const buildPath = path.resolve(__dirname, '..', 'client', 'build');
+// Use a simpler relative path that works inside the Docker structure
+const buildPath = path.join(__dirname, '../client/build');
 app.use(express.static(buildPath));
 
-// 3. Auction Data
 const AUCTION_END_TIME = Date.now() + 10 * 60 * 1000;
-
 let auctions = [
-  {
-    id: 1,
-    title: "Vintage Watch",
-    currentBid: 100,
-    highestBidder: null,
-    endTime: AUCTION_END_TIME
-  },
-  {
-    id: 2,
-    title: "Retro Camera",
-    currentBid: 250,
-    highestBidder: null,
-    endTime: AUCTION_END_TIME
-  }
+  { id: 1, title: "Vintage Watch", currentBid: 100, highestBidder: null, endTime: AUCTION_END_TIME },
+  { id: 2, title: "Retro Camera", currentBid: 250, highestBidder: null, endTime: AUCTION_END_TIME }
 ];
 
-// 4. API Routes
-app.get('/items', (req, res) => {
-  res.status(200).json(auctions);
-});
+app.get('/items', (req, res) => res.status(200).json(auctions));
 
-// 5. Socket.io Logic
 io.on('connection', (socket) => {
-  console.log(`New Connection: ${socket.id}`);
-
-  socket.on('BID_PLACED', (incomingBid) => {
-    const { itemId, bidAmount, userId } = incomingBid;
-    const item = auctions.find(a => a.id === itemId);
-
-    if (!item) return socket.emit('ERROR', 'Item not found');
-
-    const now = Date.now();
-    const isAuctionOver = now > item.endTime;
-    const isBidTooLow = bidAmount <= item.currentBid;
-
-    if (isAuctionOver) {
-      return socket.emit('ERROR', 'This auction has already closed.');
-    }
-
-    if (isBidTooLow) {
-      return socket.emit('OUTBID', {
-        message: 'Someone else just placed a higher bid!',
-        currentBid: item.currentBid
-      });
-    }
-
-    item.currentBid = bidAmount;
-    item.highestBidder = userId;
-
-    io.emit('UPDATE_BID', {
-      itemId: item.id,
-      newBid: item.currentBid,
-      highestBidder: item.highestBidder
-    });
+  socket.on('BID_PLACED', (bid) => {
+    const item = auctions.find(a => a.id === bid.itemId);
+    if (!item || bid.bidAmount <= item.currentBid || Date.now() > item.endTime) return;
+    item.currentBid = bid.bidAmount;
+    item.highestBidder = bid.userId;
+    io.emit('UPDATE_BID', { itemId: item.id, newBid: item.currentBid, highestBidder: item.highestBidder });
   });
-
-  socket.on('SYNC_TIME', (callback) => {
-    callback(Date.now());
-  });
-
-  socket.on('disconnect', () => {
-    console.log(`User left: ${socket.id}`);
-  });
+  socket.on('SYNC_TIME', (cb) => cb(Date.now()));
 });
 
-// 6. THE CATCH-ALL ROUTE (MUST BE LAST)
+// The Catch-All with the simplified *path
 app.get('*path', (req, res) => {
-  res.sendFile(path.join(buildPath, 'index.html'), (err) => {
-    if (err) {
-      // This will show in Render logs if the path is still wrong
-      console.error("Error sending index.html. Path tried:", path.join(buildPath, 'index.html'));
-      res.status(500).send("Frontend files not found. Check build path.");
-    }
-  });
+  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// 7. Start Server
-const PORT = process.env.PORT || 3001;
-
+// BIND TO 0.0.0.0 (REQUIRED BY RENDER)
+const PORT = process.env.PORT || 10000;
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`
-    Auction Server is live!
-    Port: ${PORT}
-    Directory: ${__dirname}
-  `);
+  console.log(`Server live on port ${PORT}`);
 });
