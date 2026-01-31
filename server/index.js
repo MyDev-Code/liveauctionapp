@@ -16,7 +16,7 @@ const io = new Server(server, {
 const buildPath = path.join(__dirname, '../client/build');
 app.use(express.static(buildPath));
 
-const AUCTION_END_TIME = Date.now() + 10 * 60 * 1000;
+const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
 let auctions = [
   { id: 1, title: "Vintage Watch", currentBid: 100, highestBidder: null, endTime: AUCTION_END_TIME },
   { id: 2, title: "Retro Camera", currentBid: 250, highestBidder: null, endTime: AUCTION_END_TIME }
