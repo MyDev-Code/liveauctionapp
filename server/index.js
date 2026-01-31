@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
     if (!item || bid.bidAmount <= item.currentBid || Date.now() > item.endTime) return;
     item.currentBid = bid.bidAmount;
     item.highestBidder = bid.userId;
+    console.log(`Bid placed: User "${bid.userId}" bid $${bid.bidAmount} on "${item.title}"`);
     io.emit('UPDATE_BID', { itemId: item.id, newBid: item.currentBid, highestBidder: item.highestBidder });
   });
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
