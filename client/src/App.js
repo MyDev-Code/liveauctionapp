@@ -9,7 +9,7 @@ const SERVER_URL = window.location.origin;
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
 const AuctionTimer = ({ endTime, serverTime }) => {
-  if (!serverTime) return <div className="timer">Loading...</div>;
+  if (!serverTime) return <div className="timer">Loading....</div>;
 
   const remaining = Math.max(0, endTime - serverTime);
 
