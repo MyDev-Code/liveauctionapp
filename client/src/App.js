@@ -27,12 +27,15 @@ const AuctionTimer = ({ endTime }) => {
     return () => clearInterval(timer);
   }, [endTime, serverOffset]);
 
-  const minutes = Math.floor(timeLeft / 60000);
+  const hours = Math.floor(timeLeft / 3600000);
+  const minutes = Math.floor((timeLeft % 3600000) / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
 
   return (
     <div className={`timer ${timeLeft < 60000 && timeLeft > 0 ? 'timer-danger' : ''}`}>
-      {timeLeft > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : "CLOSED"}
+      {timeLeft > 0 ?
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        : "CLOSED"}
     </div>
   );
 };
