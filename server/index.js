@@ -17,7 +17,7 @@ app.use(express.static(buildPath));
 
 const fs = require('fs');
 
-const DATA_FILE = path.join(__dirname, 'auction_data.json');
+const DATA_FILE = path.join(__dirname,'auction_data.json');
 
 const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
 const INITIAL_AUCTIONS = [
