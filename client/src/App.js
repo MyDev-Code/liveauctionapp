@@ -3,8 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 
-
-
 const SERVER_URL = window.location.port === '3000' ? "http://127.0.0.1:10000" : window.location.origin;
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
@@ -103,15 +101,12 @@ export default function App() {
     fetchTime();
   }, []);
 
-
   useEffect(() => {
     const tick = () => {
       setServerTime(Date.now() + serverOffset);
     };
 
-
     tick();
-
 
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
@@ -129,7 +124,7 @@ export default function App() {
         setError(null);
       } catch (err) {
         console.error("Fetch error:", err);
-        // setError("Unable to connect to the auction server. Please retry.");
+
         setError(`Unable to connect: ${err.message}`);
       } finally {
         setIsLoading(false);
@@ -162,8 +157,6 @@ export default function App() {
     }
   };
 
-
-
   if (isLoading) return <div className="loader">Loading Auction...</div>;
 
   if (!isLoggedIn) {
@@ -177,7 +170,11 @@ export default function App() {
               className="login-input"
               placeholder="Enter your name"
               value={usernameInput}
-              onChange={(e) => setUsernameInput(e.target.value)}
+              onChange={(e) => {
+                if (/^[a-zA-Z\s]*$/.test(e.target.value)) {
+                  setUsernameInput(e.target.value);
+                }
+              }}
               autoFocus
               required
             />

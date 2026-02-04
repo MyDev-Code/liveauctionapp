@@ -3,18 +3,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
-
+const fs = require('fs');
 const app = express();
 
-// Log all requests
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
 
-// Permissive CORS
 app.use(cors({
-  origin: true, // Reflect request origin
+  origin: true,
   credentials: true
 }));
 
@@ -25,8 +19,6 @@ const io = new Server(server, {
 
 const buildPath = path.join(__dirname, '../client/build');
 app.use(express.static(buildPath));
-
-const fs = require('fs');
 
 const DATA_FILE = path.join(__dirname, 'auction_data.json');
 
@@ -80,11 +72,9 @@ io.on('connection', (socket) => {
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
 });
 
-
 app.get('*path', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
-
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, "0.0.0.0", () => {
