@@ -53,15 +53,8 @@ io.on('connection', (socket) => {
   socket.on('BID_PLACED', (bid) => {
     const item = auctions.find(a => a.id === bid.itemId);
 
-    // Validation: Item must exist and auction must be active
     if (!item || Date.now() > item.endTime) return;
 
-    // STRICT CONCURRENCY CHECK (Optimistic Locking):
-    // We only accept valid NEXT bids. 
-    // If User A and User B both try to bid $110 (on top of $100):
-    // 1. User A arrives first. $110 === $100 + 10. Valid. New Price $110.
-    // 2. User B arrives second. $110 !== $110 + 10. Invalid. REJECTED.
-    // Result: User A wins. User B is "outbid" (stayed at previous state) and must bid again.
     if (bid.bidAmount !== item.currentBid + 10) {
       return;
     }

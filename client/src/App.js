@@ -84,37 +84,34 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auction_user'));
   const [usernameInput, setUsernameInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [serverTime, setServerTime] = useState(null); // Null until synced
+  const [serverTime, setServerTime] = useState(null);
   const [serverOffset, setServerOffset] = useState(0);
 
-  // Time Sync Effect
+
   useEffect(() => {
     const fetchTime = () => {
       const start = Date.now();
       socket.emit('SYNC_TIME', (serverTimestamp) => {
         const end = Date.now();
         const latency = (end - start) / 2;
-        const offset = serverTimestamp - end + latency; // Adjust for round trip
+        const offset = serverTimestamp - end + latency;
         setServerOffset(offset);
       });
     };
 
     fetchTime();
-    // Re-sync occasionally if needed, but once is usually enough for short sessions.
-    // We could add an interval here to re-check drift.
   }, []);
 
-  // Global Ticker
+
   useEffect(() => {
     const tick = () => {
       setServerTime(Date.now() + serverOffset);
     };
 
-    // Update immediately
+
     tick();
 
-    // Optimization: Update every second (1000ms) instead of 100ms
-    // Since we only display mm:ss, checking 10x a second is wasteful.
+
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [serverOffset]);
