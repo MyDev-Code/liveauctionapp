@@ -86,6 +86,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [serverTime, setServerTime] = useState(null);
   const [serverOffset, setServerOffset] = useState(0);
+  const [error, setError] = useState(null);
 
 
   useEffect(() => {
@@ -120,10 +121,15 @@ export default function App() {
     const fetchItems = async () => {
       try {
         const response = await fetch(`${SERVER_URL}/items`);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
         const data = await response.json();
         setItems(data);
+        setError(null);
       } catch (err) {
         console.error("Fetch error:", err);
+        setError("Unable to connect to the auction server. Please retry.");
       } finally {
         setIsLoading(false);
       }
@@ -191,9 +197,16 @@ export default function App() {
       </header>
 
       <section className="auction-grid">
-        {items.map((item) => (
-          <AuctionCard key={item.id} item={item} userId={userId} onPlaceBid={handlePlaceBid} serverTime={serverTime} />
-        ))}
+        {error ? (
+          <div className="error-message">
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()} className="retry-button">Retry</button>
+          </div>
+        ) : (
+          items.map((item) => (
+            <AuctionCard key={item.id} item={item} userId={userId} onPlaceBid={handlePlaceBid} serverTime={serverTime} />
+          ))
+        )}
       </section>
     </main>
   );
