@@ -5,7 +5,18 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-app.use(cors());
+
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// Permissive CORS
+app.use(cors({
+  origin: true, // Reflect request origin
+  credentials: true
+}));
 
 const server = http.createServer(app);
 const io = new Server(server, {
