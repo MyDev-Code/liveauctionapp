@@ -61,11 +61,7 @@ You can run the entire application (client + server) using Docker.
     docker run -p 3000:3001 auction-app
     ```
 
-<<<<<<< HEAD
-3. Access the App: Open `http://localhost:3001` in your browser. (Note: The frontend is served directly by the backend on this port).
-=======
-The app will be accessible at `http://localhost:3000`.
->>>>>>> cd5d4b4 (Fix)
+
 
 ## Usage
 
