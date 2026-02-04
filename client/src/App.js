@@ -5,7 +5,7 @@ import './App.css';
 
 
 
-const SERVER_URL = window.location.origin;
+const SERVER_URL = "http://localhost:10000";
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
 const AuctionTimer = ({ endTime, serverTime }) => {
