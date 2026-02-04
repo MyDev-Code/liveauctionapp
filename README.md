@@ -31,9 +31,9 @@ Navigate to the server directory and install dependencies:
 cd server
 npm install
 ```
-Start the backend server (runs on port 3001):
+Start the backend server (runs on port 10000):
 ```bash
-node index.js
+npm start
 ```
 
 ### 3. Setup the Client
