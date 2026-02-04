@@ -113,9 +113,9 @@ export default function App() {
     // Update immediately
     tick();
 
-    // High frequency update for smoothness, though seconds is fine.
-    // Using 100ms ensures we catch the "second" change close to reality.
-    const interval = setInterval(tick, 100);
+    // Optimization: Update every second (1000ms) instead of 100ms
+    // Since we only display mm:ss, checking 10x a second is wasteful.
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [serverOffset]);
 

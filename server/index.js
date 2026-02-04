@@ -17,7 +17,7 @@ app.use(express.static(buildPath));
 
 const fs = require('fs');
 
-const DATA_FILE = path.join(__dirname,'auction_data.json');
+const DATA_FILE = path.join(__dirname, 'auction_data.json');
 
 const AUCTION_END_TIME = Date.now() + 5 * 60 * 1000;
 const INITIAL_AUCTIONS = [
@@ -52,10 +52,24 @@ app.get('/items', (req, res) => res.status(200).json(auctions));
 io.on('connection', (socket) => {
   socket.on('BID_PLACED', (bid) => {
     const item = auctions.find(a => a.id === bid.itemId);
-    if (!item || bid.bidAmount <= item.currentBid || Date.now() > item.endTime) return;
+
+    // Validation: Item must exist and auction must be active
+    if (!item || Date.now() > item.endTime) return;
+
+    // STRICT CONCURRENCY CHECK (Optimistic Locking):
+    // We only accept valid NEXT bids. 
+    // If User A and User B both try to bid $110 (on top of $100):
+    // 1. User A arrives first. $110 === $100 + 10. Valid. New Price $110.
+    // 2. User B arrives second. $110 !== $110 + 10. Invalid. REJECTED.
+    // Result: User A wins. User B is "outbid" (stayed at previous state) and must bid again.
+    if (bid.bidAmount !== item.currentBid + 10) {
+      return;
+    }
+
     item.currentBid = bid.bidAmount;
     item.highestBidder = bid.userId;
-    console.log(`Bid placed: User "${bid.userId}" bid $${bid.bidAmount} on "${item.title}"`);
+
+    console.log(`Bid placed: User "${bid.userId}" bid $${item.currentBid} on "${item.title}"`);
     saveAuctions();
     io.emit('UPDATE_BID', { itemId: item.id, newBid: item.currentBid, highestBidder: item.highestBidder });
   });
