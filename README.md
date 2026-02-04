@@ -58,7 +58,7 @@ You can run the entire application (client + server) using Docker.
 
 2. **Run the container**:
     ```bash
-    docker run -p 3000:3001 auction-app
+    docker run -p 10000:10000 auction-app
     ```
 
 
