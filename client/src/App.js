@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import './App.css';
 
 
+
 const SERVER_URL = "http://127.0.0.1:10000";
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
@@ -128,7 +129,8 @@ export default function App() {
         setError(null);
       } catch (err) {
         console.error("Fetch error:", err);
-        setError("Unable to connect to the auction server. Please retry.");
+        // setError("Unable to connect to the auction server. Please retry.");
+        setError(`Unable to connect: ${err.message}`);
       } finally {
         setIsLoading(false);
       }
