@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 
-const SERVER_URL = window.location.port === '3000' ? "http://localhost:10000" : window.location.origin;
+const SERVER_URL = window.location.port === '3000' ? "http://127.0.0.1:10000" : window.location.origin;
 const socket = io(SERVER_URL, { transports: ['websocket', 'polling'] });
 
 const AuctionTimer = ({ endTime, serverTime }) => {
