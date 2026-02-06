@@ -32,10 +32,20 @@ let auctions = [];
 
 try {
   if (fs.existsSync(DATA_FILE)) {
-    auctions = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const fileContent = fs.readFileSync(DATA_FILE, 'utf8');
+    try {
+      auctions = JSON.parse(fileContent);
+    } catch (e) {
+      auctions = [];
+    }
+
+    if (!Array.isArray(auctions) || auctions.length === 0) {
+      auctions = INITIAL_AUCTIONS;
+      fs.writeFileSync(DATA_FILE, JSON.stringify(auctions, null, 2));
+    }
   } else {
     auctions = INITIAL_AUCTIONS;
-    fs.writeFileSync(DATA_FILE, JSON.stringify(auctions));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(auctions, null, 2));
   }
 } catch (err) {
   console.error("Error loading data:", err);
@@ -72,7 +82,7 @@ io.on('connection', (socket) => {
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
 });
 
-app.get('(.*)', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
