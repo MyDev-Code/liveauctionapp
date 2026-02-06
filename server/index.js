@@ -72,7 +72,7 @@ io.on('connection', (socket) => {
   socket.on('SYNC_TIME', (cb) => cb(Date.now()));
 });
 
-app.get('*', (req, res) => {
+app.get('(.*)', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
